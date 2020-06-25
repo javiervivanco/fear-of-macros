@@ -1,17 +1,19 @@
-![Fear of Macros](http://www.greghendershott.com/fear-of-macros/fear-of-macros.jpg "")
+![Miedo a los macros](http://www.greghendershott.com/fear-of-macros/fear-of-macros.jpg "")
 
-## What it is
+Traduccion del original de [Greg Hendershott](https://github.com/greghendershott/fear-of-macros)
 
-This is a rough draft of a practical guide to Racket macros.
+## ¿Que es esto?
 
-I started to write it not because I understand macros very well, but
-because I don't.
+Este es un borrador de una guía práctica de las macros de Racket.
 
-## Where to read it
+Empecé a escribirla no porque entienda muy bien las macros, sino
+porque no lo hago.
+
+## Donde lo puedo leer
 
 - [Multiple HTML files](https://www.greghendershott.com/fear-of-macros/index.html)
 - [One big HTML file](https://www.greghendershott.com/fear-of-macros/all.html)
 
 ## Feedback
 
-Feedback is welcome; please use Issues page here on GitHub.
+Los comentarios son bienvenidos; por favor, utilice la página de Issues aquí en GitHub.
