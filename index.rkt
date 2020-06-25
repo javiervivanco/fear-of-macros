@@ -28,11 +28,11 @@
 @(define (current-year)
    (number->string (date-year (current-date))))
 
-@title[#:version ""]{Fear of Macros}
+@title[#:version ""]{Miedo a los macros}
 @author[@hyperlink["http://www.greghendershott.com"
                    "Greg Hendershott"]]
 @image["fear-of-macros.jpg"]
-@para{A practical guide to @hyperlink["https://www.racket-lang.org"]{Racket} macros.}
+@para{Una guia practica de @hyperlink["https://www.racket-lang.org"]{Racket} macros.}
 @para[@smaller{Copyright (c) 2012-@current-year[] by Greg Hendershott. All rights reserved.}]
 @para[@smaller["Last updated "
                (parameterize ([date-display-format 'iso-8601])
@@ -44,71 +44,68 @@
 
 @; ----------------------------------------------------------------------------
 
-@section{Preface}
+@section{Prefacio}
 
-I learned @hyperlink["https://www.racket-lang.org"]{Racket} after 25
-years of mostly using C and C++.
+Aprendi @hyperlink["https://www.racket-lang.org"]{Racket} después de 25
+años usando mayormente C y C++.
 
-Some psychic whiplash resulted.
+Resulto en un latigazo psíquico.
 
-"All the parentheses" was actually not a big deal. Instead, the first
-mind warp was functional programming. Before long I wrapped my brain
-around it, and went on to become comfortable and effective with many
-other aspects and features of Racket.
+"Todos los paréntesis" en realidad no era gran cosa. En cambio, la primera
+deformación mental era la programación funcional. En poco tiempo envolví mi cerebro
+a su alrededor, y pasó a ser cómodo y eficaz con muchos
+otros aspectos y características de Racket.
 
-But two final frontiers remained: Macros and continuations.
+Pero quedaban dos fronteras finales: Macros y continuaciones.
 
-I found that simple macros were easy and understandable, plus there
-were many good tutorials available. But the moment I stepped past
-routine pattern-matching, I kind of fell off a cliff into a
-terminology soup. I marinaded myself in material, hoping it would
-eventually sink in after enough re-readings. I even found myself using
-trial and error, rather than having a clear mental model what was
-going on. Gah.
+Encontré que las macros simples eran fáciles y comprensibles, además de que
+había muchos buenos tutoriales disponibles. Pero en el momento en que pasé
+a rutinas de pattern-matching , me caí de un acantilado en un
+sopa de terminología. Me adobé en el material, esperando que
+eventualmente se hunden después de suficientes relecturas. Incluso me encontré usando
+prueba y error, en lugar de tener un modelo mental claro de lo que estaba sucediendo. Aja.
 
-I'm starting to write this at the point where the shapes are slowly
-emerging from the fog.
+Estoy empezando a escribir esto en el punto donde las formas saliendo lentamente
+ de la niebla.
 
-@margin-note{If you have any corrections, criticisms, complaints, or whatever,
-@hyperlink["https://github.com/greghendershott/fear-of-macros/issues" "please
-let me know"].}
+@margin-note{Si tiene alguna corrección, crítica, queja o lo que sea...,
+@hyperlink["https://github.com/greghendershott/fear-of-macros/issues" "por favor 
+hazme saberlo."].}
+Mi motivo principal es egoísta. Explicar algo me obliga a aprenderlo más a fondo. 
+Además, si escribo algo con errores, otras personas estarán ansiosas por señalarlos y corregirme. 
+Es que una variación de ingeniería social de la metaprogramación? 
 
-My primary motive is selfish. Explaining something forces me to learn
-it more thoroughly. Plus if I write something with mistakes, other
-people will be eager to point them out and correct me. Is that a
-social-engineering variation of meta-programming? Next question,
-please. :)
+Próxima pregunta, Por favor. :)
 
-Finally I do hope it may help other people who have a similar
-background and/or learning style as me.
+Finalmente, espero que pueda ayudar a otras personas que tienen una base y/o estilo de 
+aprendizaje similar al mío.
 
-I want to show how Racket macro features have evolved as solutions to
-problems or annoyances. I learn more quickly and deeply when I
-discover the answer to a question I already have, or find the solution
-to a problem whose pain I already feel. Therefore I'll give you the
-questions and problems first, so that you can better appreciate and
-understand the answers and solutions.
+Quiero mostrar cómo las características de las macros de Racket han evolucionado como 
+soluciones a problemas o molestias. Aprendo más rápido y profundamente cuando descubro la 
+respuesta a una pregunta que ya tengo, o encuentro la solución a un problema cuyo malestar 
+ya siento. Por lo tanto, te daré las preguntas y problemas primero, para que puedas apreciar
+ y entender mejor las respuestas y soluciones.
 
 @; ----------------------------------------------------------------------------
 
-@section{Our plan of attack}
+@section{Nuestro plan de abordaje}
 
-The macro system you will mostly want to use for production-quality
-macros is called @racket[syntax-parse]. And don't worry, we'll get to
-that soon.
+El sistema de macros que querrás usar mayormente para macros de 
+calidad productiva son las macros llamadas @racket[syntax-parse]. No te preocupes,
+llegaremo pronto ahí
 
-But if we start there, you're likely to feel overwhelmed by concepts
-and terminology, and get very confused. I did.
+Pero si empezamos por ahí, es probable que te sientas abrumado por los conceptos
+y la terminología, y te confundas mucho. Yo lo hice.
 
-1. Instead let's start with the basics: A syntax object and a function
-to change it---a "transformer". We'll work at that level for a while to
-get comfortable and to de-mythologize this whole macro business.
+1. En lugar de eso, empecemos con lo básico: Un objeto de sintaxis y una función
+para cambiarlo---un "transformador". Trabajaremos a ese nivel por un tiempo para
+que se pongan cómodos y desmitifiquen todo este asunto de la macro.
 
-2. Soon we'll realize that pattern-matching would make life
-easier. We'll learn about @racket[syntax-case] and its shorthand
-cousin, @racket[define-syntax-rule]. We'll discover we can get
-confused if we want to munge pattern variables before sticking them
-back in the template, and learn how to do that.
+2. Pronto nos daremos cuenta de que el pattern-matching hara la vida
+más fácil. Aprenderemos sobre @racket[syntax-case] y su abreviatura prima, 
+@racket[define-syntax-rule]. Descubriremos que podemos confudirnos si
+queremos machacar las variables de los patrones antes de meterlas
+de nuevo en la plantilla, y aprender a hacer eso.
 
 3. At this point we'll be able to write many useful macros. But, what
 if we want to write the ever-popular anaphoric if, with a "magic
@@ -129,7 +126,7 @@ enhancements is @racket[syntax-parse].
 @; ----------------------------------------------------------------------------
 @; ----------------------------------------------------------------------------
 
-@section{Transform!}
+@section{Transformar!}
 
 @verbatim[#:indent 2]{
 YOU ARE INSIDE A ROOM.
@@ -145,13 +142,13 @@ YOU HAVE A SYNTAX TRANSFORMER
 }
 
 
-@subsection{What is a syntax transformer?}
+@subsection{¿Qué es un transformador de sintaxis?}
 
-A syntax transformer is not one of the トランスフォーマ
+Un syntax transformer no es un トランスフォーマ
 @hyperlink["http://en.wikipedia.org/wiki/Transformers" "transformers"].
 
-Instead, it is simply a function. The function takes syntax and
-returns syntax. It transforms syntax.
+En cambio, es simplemente una función. La función toma sintaxis y
+devuelve la sintaxis. Transforma la sintaxis.
 
 Here's a transformer function that ignores its input syntax, and
 always outputs syntax for a string literal:
